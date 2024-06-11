@@ -9,8 +9,8 @@ import urllib.parse
 init(autoreset=True)
 
 # Correct the file path and ensure it has the .csv extension
-csv_file = r'C:\Users\DAILY USE\Downloads\skytechrolling-meta.csv'
-html_directory = r'C:\Users\DAILY USE\Downloads\skytechrolling'
+csv_file = r'C:\Users\DAILY USE\Downloads\piyushsteel-meta-update.csv'
+html_directory = r'C:\Users\DAILY USE\Downloads\piyushsteel-1'
 
 # Load CSV file and strip column names
 try:
@@ -74,9 +74,12 @@ for index, row in df.iterrows():
     new_title = row['New Meta Title']
     new_description = row['New Meta Description']
 
-    # Extract filename from the URL
+    # Extract path from the URL
     parsed_url = urllib.parse.urlparse(page_url)
-    filename = os.path.basename(parsed_url.path)
+    path = parsed_url.path
+    if path.endswith('/'):
+        path = os.path.join(path, 'index.html')
+    filename = path.strip('/')
     html_file_path = os.path.join(html_directory, filename)
 
     if os.path.exists(html_file_path):
