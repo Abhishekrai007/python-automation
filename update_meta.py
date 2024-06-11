@@ -9,18 +9,19 @@ import urllib.parse
 init(autoreset=True)
 
 # Correct the file path and ensure it has the .csv extension
-csv_file = r'C:\Users\DAILY USE\Downloads\piyushsteel-meta-update.csv'
-html_directory = r'C:\Users\DAILY USE\Downloads\piyushsteel-1'
+csv_file = r'C:\Users\DAILY USE\Downloads\applesteel-meta-title.csv'
+html_directory = r'C:\Users\DAILY USE\Downloads\applesteel-meta'
 
-# Load CSV file
+# Load CSV file and strip column names
 try:
     df = pd.read_csv(csv_file)
+    df.columns = df.columns.str.strip()  # Strip leading/trailing whitespace from column names
+    print(df.columns)  # Print column names for debugging
 except FileNotFoundError:
     print(f"{Fore.RED}CSV file not found: {csv_file}")
     exit()
 
 # Function to update meta title in HTML file
-
 def update_meta_title_in_html(html_file, new_title):
     try:
         with open(html_file, 'r', encoding='utf-8') as file:
@@ -55,26 +56,29 @@ def update_meta_title_in_html(html_file, new_title):
         print(f"{Fore.RED}Error processing file {html_file}: {e}")
 
 # Group title updates by their respective HTML files
-title_updates_by_file = {}
+updates_by_file = {}
 for index, row in df.iterrows():
     page_url = row['URL']
-    new_title = row['New Title']
+    new_title = row['New Meta Title']
 
-    # Extract filename from the URL
+    # Extract path from the URL
     parsed_url = urllib.parse.urlparse(page_url)
-    filename = os.path.basename(parsed_url.path)
+    path = parsed_url.path
+    if path.endswith('/'):
+        path = os.path.join(path, 'index.html')
+    filename = path.strip('/')
     html_file_path = os.path.join(html_directory, filename)
 
     if os.path.exists(html_file_path):
-        title_updates_by_file[html_file_path] = new_title
+        updates_by_file[html_file_path] = new_title
     else:
         print(f"{Fore.RED}File does not exist: {html_file_path}")
 
 # Update each HTML file with the respective new title
-total_files = len(title_updates_by_file)
+total_files = len(updates_by_file)
 start_time = time.time()
 
-for i, (html_file, new_title) in enumerate(title_updates_by_file.items()):
+for i, (html_file, new_title) in enumerate(updates_by_file.items()):
     update_meta_title_in_html(html_file, new_title)
 
     # Print progress
